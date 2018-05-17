@@ -58,4 +58,11 @@
                        parameters:(id)parameters;
 
 
+// JSON-PRC Converter
++(BOOL)canConvertRequest:(NBMRequest*)request;
++(NSString*)convertRequest:(NBMRequest*)request;
++(BOOL)canConvertResponse:(NSDictionary *)dictionary;
++(NSDictionary *)convertResponse:(NSDictionary *)response;
++(NSInteger)requestIDFor:(NBMRequest*)request;
+
 @end

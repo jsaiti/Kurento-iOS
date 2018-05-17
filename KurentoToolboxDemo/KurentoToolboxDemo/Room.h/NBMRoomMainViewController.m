@@ -50,6 +50,8 @@ static  NSString* const kRoomURLString = @"RoomServerURL";
         [cell setDelegate:self];
         cell.serverTf.text = [self roomServerURLString];
         cell.serverTf.placeholder = defaultWsRoom;
+        [cell.roomTf becomeFirstResponder];
+
         
         return cell;
     }

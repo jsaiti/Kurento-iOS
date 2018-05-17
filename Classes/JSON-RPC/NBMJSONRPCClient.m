@@ -263,10 +263,12 @@ static NSTimeInterval kRequestMaxRetries = 3;
 - (void)sendRequest:(NBMRequest *)requestToSend completion:(void (^)(NBMResponse *))responseBlock {
     //Request
     if (responseBlock) {
-        NSUInteger reqId = _requestId++;
-        requestToSend.requestId = @(reqId);
+//        NSUInteger reqId = _requestId++;
+//        requestToSend.requestId = @(reqId);
+        requestToSend.requestId = @([NBMRequest requestIDFor:requestToSend]);
         NBMRequestPack *requestPack = [[NBMRequestPack alloc] initWithRequest:requestToSend responseBlock:responseBlock timeoutDelegate:self];
         [self sendRequestPack:requestPack retried:NO];
+        DDLogDebug(@"Request to send %@, %@", requestToSend.method, @([NBMRequest requestIDFor:requestToSend]) );
     }
     else {
         //Notification
@@ -351,6 +353,10 @@ static NSTimeInterval kRequestMaxRetries = 3;
 
 - (void)decodeMessage:(NSDictionary *)messageDictionary
 {
+    if([NBMRequest canConvertResponse:messageDictionary]){
+        messageDictionary=[NBMRequest convertResponse:messageDictionary];
+    }
+    
     messageDictionary = [self validateMessage:messageDictionary];
     //Message validation
     if (!messageDictionary) {
@@ -466,8 +472,16 @@ static NSTimeInterval kRequestMaxRetries = 3;
 
 - (void)sendRequest:(NBMRequest *)request
 {
-    NSString *requestString = [request toJSONString];
-    [_transport send:requestString];
+    if([NBMRequest canConvertRequest:request]){
+        
+        NSString *requestString =[NBMRequest convertRequest:request];
+        [_transport send:requestString];
+        
+    }else{
+        
+        NSString *requestString = [request toJSONString];
+        [_transport send:requestString];
+    }
 }
 
 - (void)cancelRequestPack:(NBMRequestPack *)requestPack

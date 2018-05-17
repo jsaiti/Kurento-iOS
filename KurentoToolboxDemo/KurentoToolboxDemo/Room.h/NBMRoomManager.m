@@ -68,9 +68,7 @@ typedef void(^ErrorBlock)(NSError *error);
 
 - (void)joinRoom:(NBMRoom *)room withConfiguration:(NBMMediaConfiguration *)configuration {
     [self setupRoomClient:room];
-    
     [self setupReachability];
-    
     [self setupWebRTCSession];
 }
 
@@ -100,7 +98,7 @@ typedef void(^ErrorBlock)(NSError *error);
     if (hasMediaStarted) {
         dispatch_async(dispatch_get_main_queue(), ^{
             if ([self.delegate respondsToSelector:@selector(roomManager:didAddLocalStream:)]) {
-                 [self.delegate roomManager:self didAddLocalStream:self.localStream];
+                [self.delegate roomManager:self didAddLocalStream:self.localStream];
             }
         });
         
@@ -116,7 +114,7 @@ typedef void(^ErrorBlock)(NSError *error);
     } else {
         //Return error?
     }
-//    [self generateLocalOffer];
+    //    [self generateLocalOffer];
 }
 
 - (void)unpublishVideo:(void (^)(NSError *))block {
@@ -229,7 +227,7 @@ typedef void(^ErrorBlock)(NSError *error);
 
 - (void)setupRoomClient:(NBMRoom *)room {
     self.roomClient = [[NBMRoomClient alloc] initWithRoom:room delegate:self];
-//    [_roomClient connect];
+    
 }
 
 - (void)manageRoomClientConnection {
@@ -281,13 +279,13 @@ typedef void(^ErrorBlock)(NSError *error);
 
 //- (BOOL)setupWebRTCMedia {
 //    BOOL started = [self.webRTCPeer startLocalMedia];
-//    
+//
 //    if (started) {
 //        dispatch_async(dispatch_get_main_queue(), ^{
 //            [self.delegate roomManager:se lf didAddLocalStream:self.localStream];
 //        });
 //    }
-//    
+//
 //    return started;
 //}
 
@@ -301,13 +299,13 @@ typedef void(^ErrorBlock)(NSError *error);
         DDLogDebug(@"REACHABLE: connected %@ - joined %@", weakSelf.isConnected ? @"YES" : @"NO", weakSelf.isJoined ? @"YES" : @"NO");
         if (weakSelf.roomClient.connectionState == NBMRoomClientConnectionStateClosed) {
             [weakSelf manageRoomClientConnection];
-//            [weakSelf.roomClient connect];
+            //            [weakSelf.roomClient connect];
         }
     };
     
-//    self.reachability.unreachableBlock = ^(Reachability *reach) {
-//        DDLogDebug(@"UNREACHABLE: connected %@ - joined %@", weakSelf.isConnected ? @"YES" : @"NO", weakSelf.isJoined ? @"YES" : @"NO");
-//    };
+    //    self.reachability.unreachableBlock = ^(Reachability *reach) {
+    //        DDLogDebug(@"UNREACHABLE: connected %@ - joined %@", weakSelf.isConnected ? @"YES" : @"NO", weakSelf.isJoined ? @"YES" : @"NO");
+    //    };
     
     [self.reachability startNotifier];
 }
@@ -348,11 +346,11 @@ typedef void(^ErrorBlock)(NSError *error);
 }
 
 - (void)safeRestore {
-//    [self.roomClient joinRoom:^(NSSet *peers, NSError *error) {
-//        if (error.code == 104) {
-//            [self generateLocalOffer];
-//        }
-//    }];
+    //    [self.roomClient joinRoom:^(NSSet *peers, NSError *error) {
+    //        if (error.code == 104) {
+    //            [self generateLocalOffer];
+    //        }
+    //    }];
     [self.roomClient leaveRoom:^(NSError *error) {
         [self joinToRoom];
     }];
@@ -426,7 +424,7 @@ typedef void(^ErrorBlock)(NSError *error);
         peer = [self localPeer];
     }
     NSString *connectionId = peer.identifier;
-
+    
     return connectionId;
 }
 
@@ -449,7 +447,7 @@ typedef void(^ErrorBlock)(NSError *error);
             [self joinToRoom];
         } else {
             //[self safeRestore];
-//            [self restoreConnections];
+            //            [self restoreConnections];
             //[self generateLocalOffer];
         }
     }
@@ -466,8 +464,7 @@ typedef void(^ErrorBlock)(NSError *error);
 //Room API
 
 - (void)client:(NBMRoomClient *)client didJoinRoom:(NSError *)error {
-    [self.delegate roomManager:self roomJoined:(NSError *)error];
-
+    
     //publish video
     if (!error) {
         [self generateLocalOffer];
@@ -480,6 +477,8 @@ typedef void(^ErrorBlock)(NSError *error);
             }
         }
     }
+    
+    [self.delegate roomManager:self roomJoined:(NSError *)error];
 }
 
 - (void)client:(NBMRoomClient *)client didLeaveRoom:(NSError *)error {
@@ -500,6 +499,7 @@ didReceiveMessageWithBuffer:(RTCDataBuffer *)buffer {
 //Room Events
 
 - (void)client:(NBMRoomClient *)client participantJoined:(NBMPeer *)peer {
+    [self generateOfferForPeer:peer];
     [self.delegate roomManager:self peerJoined:peer];
 }
 
@@ -608,12 +608,12 @@ didReceiveMessageWithBuffer:(RTCDataBuffer *)buffer {
         {
             // We had an active connection, but we lost it.
             // Recover with an ice-restart?
-//            BOOL closeConnection = !self.reachability.isReachable;
-//            
-//            if (closeConnection) {
-//                [self.webRTCPeer closeConnectionWithConnectionId:connection.connectionId];
-//            }
-//
+            //            BOOL closeConnection = !self.reachability.isReachable;
+            //
+            //            if (closeConnection) {
+            //                [self.webRTCPeer closeConnectionWithConnectionId:connection.connectionId];
+            //            }
+            //
             break;
         }
         case RTCIceConnectionStateFailed:
@@ -622,30 +622,30 @@ didReceiveMessageWithBuffer:(RTCDataBuffer *)buffer {
             // While the peer is available on the signaling server we should retry with an ice-restart.
             BOOL canAttemptRestart = connection.iceAttempts <= kConnectionMaxIceAttempts; // && self.connected
             
-//            BOOL restartICE = isInitiator && peerReachable && canAttemptRestart;
-//            BOOL closeConnection = !peerReachable || !canAttemptRestart;
+            //            BOOL restartICE = isInitiator && peerReachable && canAttemptRestart;
+            //            BOOL closeConnection = !peerReachable || !canAttemptRestart;
             
             [self.webRTCPeer closeConnectionWithConnectionId:connection.connectionId];
             
-//            if (canAttemptRestart) {
-//                DDLogDebug(@"Should restart ICE?");
-//                if ([connection.connectionId isEqualToString:[self localConnectionId]]) {
-//                    [self unpublishVideo:^(NSError *error) {
-//                        
-//                    }];
-//                }
-////                [self restoreConnections];
-//                //[self safeICERestartForConnection:connection];
-//                //[self.webRTCPeer generateOffer:connection.connectionId];
-//            }
-//            else {
-//                [self.webRTCPeer closeConnectionWithConnectionId:connection.connectionId];
-//            }
+            //            if (canAttemptRestart) {
+            //                DDLogDebug(@"Should restart ICE?");
+            //                if ([connection.connectionId isEqualToString:[self localConnectionId]]) {
+            //                    [self unpublishVideo:^(NSError *error) {
+            //
+            //                    }];
+            //                }
+            ////                [self restoreConnections];
+            //                //[self safeICERestartForConnection:connection];
+            //                //[self.webRTCPeer generateOffer:connection.connectionId];
+            //            }
+            //            else {
+            //                [self.webRTCPeer closeConnectionWithConnectionId:connection.connectionId];
+            //            }
             
             if (self.connected && self.mutableRemoteStreams.count == 0) {
                 NSError *iceFailedError = [NSError errorWithDomain:@"it.nubomedia.NBMRoomManager"
-                                                          code:0
-                                                      userInfo:@{NSLocalizedDescriptionKey: @"Connection failed during ICE candidate phase"}];
+                                                              code:0
+                                                          userInfo:@{NSLocalizedDescriptionKey: @"Connection failed during ICE candidate phase"}];
                 [self.delegate roomManager:self didFailWithError:iceFailedError];
             }
             
